@@ -5,17 +5,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import cn.magic.library.flying.MagicFlyingView;
+import cn.magic.library.flying.MagicFlyingSurfaceView;
 
 public class MainActivity extends AppCompatActivity {
-    private MagicFlyingView magicFlyingView;
+    private MagicFlyingSurfaceView magicFlyingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        magicFlyingView = (MagicFlyingView) this.findViewById(R.id.flyingView);
+        magicFlyingView = (MagicFlyingSurfaceView) this.findViewById(R.id.flyingView);
         magicFlyingView.addDrawable(R.drawable.favourite_love_blue);
         magicFlyingView.addDrawable(R.drawable.favourite_love_pink);
         magicFlyingView.addDrawable(R.drawable.favourite_love_red);

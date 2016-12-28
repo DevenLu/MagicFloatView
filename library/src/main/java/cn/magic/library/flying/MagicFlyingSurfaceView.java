@@ -7,13 +7,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.View;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.animation.AccelerateInterpolator;
 
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ import java.util.Random;
  * Created by yan on 16-12-25.
  */
 
-public class MagicFlyingView extends View {
+public class MagicFlyingSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
     private SparseArray<BezierWarpEvaluator.ValueState> sparseArray = new SparseArray<>();
     private List<Bitmap> mBitmapList = new ArrayList<>();
 
@@ -34,15 +36,20 @@ public class MagicFlyingView extends View {
 
     private boolean mIsAutoPlay = false;
 
-    public MagicFlyingView(Context context) {
+    private SurfaceHolder mHolder;
+    private Canvas mCanvas;
+    private Thread mThread;
+    private boolean mIsRunning;
+
+    public MagicFlyingSurfaceView(Context context) {
         this(context, null);
     }
 
-    public MagicFlyingView(Context context, AttributeSet attrs) {
+    public MagicFlyingSurfaceView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public MagicFlyingView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MagicFlyingSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
@@ -53,6 +60,9 @@ public class MagicFlyingView extends View {
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
+
+        mHolder = getHolder();
+        mHolder.addCallback(this);
     }
 
     public void clearDrawable() {
@@ -96,7 +106,7 @@ public class MagicFlyingView extends View {
                 end.alpha = 0;
                 end.scale = 0.1f;
                 end.pointF = new PointF(new Random().nextInt(mMeasureW), 0);
-                ValueAnimator animator = ValueAnimator.ofObject(evaluator, end, start);
+                ValueAnimator animator = ValueAnimator.ofObject(evaluator, start, end);
                 animator.setDuration(4000);
                 animator.setInterpolator(new AccelerateInterpolator());
                 MagicAnimatorListener listener = new MagicAnimatorListener();
@@ -117,11 +127,57 @@ public class MagicFlyingView extends View {
         }
     }
 
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        mIsRunning = true;
+        mThread = new Thread(this);
+        mThread.start();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        mIsRunning = false;
+    }
+
+    @Override
+    public void run() {
+        while (mIsRunning) {
+            try {
+                mCanvas = mHolder.lockCanvas();
+                if (mCanvas != null) {
+                    mCanvas.drawColor(Color.WHITE);
+                    for (int index = 0; index< sparseArray.size(); index++) {
+                        BezierWarpEvaluator.ValueState valueState = sparseArray.valueAt(index);
+                        if (valueState != null) {
+                            mDestRect.left = (int) valueState.pointF.x;
+                            mDestRect.top = (int) valueState.pointF.y;
+                            mDestRect.right = mDestRect.left + (int) (valueState.scale * valueState.bitmap.getWidth());
+                            mDestRect.bottom = mDestRect.top + (int) (valueState.scale * valueState.bitmap.getHeight());
+                            mPaint.setAlpha(valueState.alpha);
+                            mCanvas.drawBitmap(valueState.bitmap, mSrcRect, mDestRect, mPaint);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+
+            } finally {
+                if (mCanvas != null) {
+                    mHolder.unlockCanvasAndPost(mCanvas);
+                }
+            }
+        }
+    }
+
     private class MagicAnimatorListener implements ValueAnimator.AnimatorUpdateListener {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             sparseArray.put(this.hashCode(), (BezierWarpEvaluator.ValueState) animation.getAnimatedValue());
-            postInvalidate();
+//            postInvalidate();
         }
     }
 
@@ -150,20 +206,5 @@ public class MagicFlyingView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mMeasureH = this.getMeasuredHeight();
         mMeasureW = this.getMeasuredWidth();
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        for (int index = 0; index< sparseArray.size(); index++) {
-            BezierWarpEvaluator.ValueState valueState = sparseArray.valueAt(index);
-            if (valueState != null) {
-                mDestRect.left = (int) valueState.pointF.x;
-                mDestRect.top = (int) valueState.pointF.y;
-                mDestRect.right = mDestRect.left + (int) (valueState.scale * valueState.bitmap.getWidth());
-                mDestRect.bottom = mDestRect.top + (int) (valueState.scale * valueState.bitmap.getHeight());
-                mPaint.setAlpha(valueState.alpha);
-                canvas.drawBitmap(valueState.bitmap, mSrcRect, mDestRect, mPaint);
-            }
-        }
     }
 }

@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="cn.magic.magicfloatview.MainActivity">
 
-    <cn.magic.library.flying.MagicFlyingView
+    <cn.magic.library.flying.MagicFlyingSurfaceView
         android:id="@+id/flyingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

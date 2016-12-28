@@ -19,7 +19,7 @@ public class BezierWarpEvaluator implements TypeEvaluator<BezierWarpEvaluator.Va
         pointF1 = getPointF(2);
         pointF2 = getPointF(1);
     }
-    
+
     private PointF getPointF(int scale) {
 
         PointF pointF = new PointF();
