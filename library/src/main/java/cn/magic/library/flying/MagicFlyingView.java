@@ -65,21 +65,35 @@ public class MagicFlyingView extends View {
 
     public void addDrawable(int resId) {
         Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(), resId);
-        mSrcRect.left = 0;
-        mSrcRect.top = 0;
-        mSrcRect.right = bitmap.getWidth();
-        mSrcRect.bottom = bitmap.getHeight();
-
-        mDestRect.left = 0;
-        mDestRect.top = 0;
-        mDestRect.right = bitmap.getWidth();
-        mDestRect.bottom = bitmap.getHeight();
         mBitmapList.add(bitmap);
     }
 
-    public void flyingAuto() {
-        mIsAutoPlay = true;
+    public void flyingAutoStart() {
+        if (mIsAutoPlay == false && sparseArray.size() <= 0) {
+            mIsAutoPlay = true;
+            flyingAuto(new Random().nextInt(10));
+        }
+    }
 
+    public boolean isAutoFlying() {
+        return mIsAutoPlay;
+    }
+
+    public void flyingAutoStop() {
+        mIsAutoPlay = false;
+    }
+
+    public void flyingAuto(int delay) {
+        getHandler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                flying();
+                Log.i("YYYY", "end------------------------flyingAuto ="+mIsAutoPlay);
+                if (mIsAutoPlay) {
+                    flyingAuto(new Random().nextInt(500));
+                }
+            }
+        }, delay);
     }
 
     public void flying() {
@@ -96,7 +110,7 @@ public class MagicFlyingView extends View {
                 end.alpha = 0;
                 end.scale = 0.1f;
                 end.pointF = new PointF(new Random().nextInt(mMeasureW), 0);
-                ValueAnimator animator = ValueAnimator.ofObject(evaluator, end, start);
+                ValueAnimator animator = ValueAnimator.ofObject(evaluator, start, end);
                 animator.setDuration(4000);
                 animator.setInterpolator(new AccelerateInterpolator());
                 MagicAnimatorListener listener = new MagicAnimatorListener();
@@ -135,8 +149,6 @@ public class MagicFlyingView extends View {
         @Override
         public void onAnimationEnd(Animator animation) {
             sparseArray.remove(key);
-
-            Log.i("YYYY", "end------------------------sparseArray.size="+sparseArray.size());
         }
 
         @Override
@@ -157,6 +169,11 @@ public class MagicFlyingView extends View {
         for (int index = 0; index< sparseArray.size(); index++) {
             BezierWarpEvaluator.ValueState valueState = sparseArray.valueAt(index);
             if (valueState != null) {
+                mSrcRect.left = 0;
+                mSrcRect.top = 0;
+                mSrcRect.right = valueState.bitmap.getWidth();
+                mSrcRect.bottom = valueState.bitmap.getHeight();
+
                 mDestRect.left = (int) valueState.pointF.x;
                 mDestRect.top = (int) valueState.pointF.y;
                 mDestRect.right = mDestRect.left + (int) (valueState.scale * valueState.bitmap.getWidth());

@@ -26,7 +26,7 @@ import java.util.Random;
  * Created by yan on 16-12-25.
  */
 
-public class MagicFlyingSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+public class MagicFantasyView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
     private SparseArray<BezierWarpEvaluator.ValueState> sparseArray = new SparseArray<>();
     private List<Bitmap> mBitmapList = new ArrayList<>();
 
@@ -41,15 +41,15 @@ public class MagicFlyingSurfaceView extends SurfaceView implements SurfaceHolder
     private Thread mThread;
     private boolean mIsRunning;
 
-    public MagicFlyingSurfaceView(Context context) {
+    public MagicFantasyView(Context context) {
         this(context, null);
     }
 
-    public MagicFlyingSurfaceView(Context context, AttributeSet attrs) {
+    public MagicFantasyView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public MagicFlyingSurfaceView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MagicFantasyView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
