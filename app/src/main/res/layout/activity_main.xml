@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="cn.magic.magicfloatview.MainActivity">
 
-    <cn.magic.library.gift.MagicGiftLinearLayout
+    <cn.magic.library.MagicFlyLinearLayout
         android:id="@+id/gift_layout"
+        app:flyAnimatorType="T2BRainNormal"
+        app:flyDuration="4000"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="10dp">
 
-    </cn.magic.library.gift.MagicGiftLinearLayout>
-
-    <cn.magic.library.flying.MagicFlyingView
-        android:id="@+id/flying_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    </cn.magic.library.MagicFlyLinearLayout>
 
     <Button
         android:id="@+id/btn"
